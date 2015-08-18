@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"flag"
 	"io"
 	"os"
 	"strings"
@@ -140,7 +141,7 @@ func Setup(c *cli.Context) error {
 	)
 
 	client.DefaultClient = client.NewClient()
-
+	flag.Parse()
 	return nil
 }
 
