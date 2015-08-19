@@ -8,11 +8,11 @@ import (
 	"sync"
 	"time"
 
-	"github.com/myodc/go-micro/broker"
-	c "github.com/myodc/go-micro/context"
-	"github.com/myodc/go-micro/errors"
-	"github.com/myodc/go-micro/registry"
-	"github.com/myodc/go-micro/transport"
+	"github.com/justintv90/go-micro/broker"
+	c "github.com/justintv90/go-micro/context"
+	"github.com/justintv90/go-micro/errors"
+	"github.com/justintv90/go-micro/registry"
+	"github.com/justintv90/go-micro/transport"
 
 	rpc "github.com/youtube/vitess/go/rpcplus"
 
@@ -81,6 +81,7 @@ func (r *rpcClient) call(ctx context.Context, address string, request Request, r
 	}
 
 	client := rpc.NewClientWithCodec(newRpcPlusCodec(msg, c))
+	defer client.Close()
 	return client.Call(ctx, request.Method(), request.Request(), response)
 }
 
@@ -135,6 +136,22 @@ func (r *rpcClient) Call(ctx context.Context, request Request, response interfac
 	if node.Port > 0 {
 		address = fmt.Sprintf("%s:%d", address, node.Port)
 	}
+
+	// Endpoint construction
+
+	// var ep endpoint.Endpoint
+
+	// ep = func() error {
+	// 	return r.call(ctx, address, request, response)
+	// }
+
+	// commandName := fmt.Sprintf("%s_%s", service.Name, request.Method())
+
+	// callback := func(err error) error {
+	// 	return err
+	// }
+	// // Including middlewares
+	// ep = circuitbreaker.Hystrix(commandName, ep, callback, 1000, 25, 100, 0, 0)(ep)
 
 	return r.call(ctx, address, request, response)
 }

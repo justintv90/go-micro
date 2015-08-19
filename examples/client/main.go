@@ -2,11 +2,12 @@ package main
 
 import (
 	"fmt"
+	"time"
 
-	"github.com/myodc/go-micro/client"
-	"github.com/myodc/go-micro/cmd"
-	c "github.com/myodc/go-micro/context"
-	example "github.com/myodc/go-micro/examples/server/proto/example"
+	"github.com/justintv90/go-micro/client"
+	"github.com/justintv90/go-micro/cmd"
+	c "github.com/justintv90/go-micro/context"
+	example "github.com/justintv90/go-micro/examples/server/proto/example"
 	"golang.org/x/net/context"
 )
 
@@ -80,12 +81,16 @@ func stream() {
 }
 
 func main() {
-	cmd.Init()
+	defer func(begin time.Time) {
 
-	for i := 0; i < 10; i++ {
-		call(i)
-	}
+		cmd.Init()
 
-	stream()
-	pub()
+		for i := 0; i < 1000; i++ {
+			call(i)
+		}
+
+		// stream()
+		// pub()
+		fmt.Println("Finished request in", time.Since(begin))
+	}(time.Now())
 }
