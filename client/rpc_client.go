@@ -8,6 +8,10 @@ import (
 	"sync"
 	"time"
 
+	"github.com/justintv90/go-micro/circuitbreaker"
+
+	"github.com/justintv90/go-micro/endpoint"
+
 	"github.com/justintv90/go-micro/broker"
 	c "github.com/justintv90/go-micro/context"
 	"github.com/justintv90/go-micro/errors"
@@ -139,21 +143,21 @@ func (r *rpcClient) Call(ctx context.Context, request Request, response interfac
 
 	// Endpoint construction
 
-	// var ep endpoint.Endpoint
+	var ep endpoint.Endpoint
 
-	// ep = func() error {
-	// 	return r.call(ctx, address, request, response)
-	// }
+	ep = func() error {
+		return r.call(ctx, address, request, response)
+	}
 
-	// commandName := fmt.Sprintf("%s_%s", service.Name, request.Method())
+	commandName := fmt.Sprintf("%s_%s", service.Name, request.Method())
 
-	// callback := func(err error) error {
-	// 	return err
-	// }
-	// // Including middlewares
-	// ep = circuitbreaker.Hystrix(commandName, ep, callback, 1000, 25, 100, 0, 0)(ep)
+	callback := func(err error) error {
+		return err
+	}
+	// Including middlewares
+	ep = circuitbreaker.Hystrix(commandName, ep, callback, 1000, 25, 100, 0, 0)(ep)
 
-	return r.call(ctx, address, request, response)
+	return ep()
 }
 
 func (r *rpcClient) StreamRemote(ctx context.Context, address string, request Request, responseChan interface{}) (Streamer, error) {
